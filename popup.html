@@ -1,0 +1,196 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>AI Content Detector</title>
+  <style>
+    @import url('https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;600;700&display=swap');
+    * { margin: 0; padding: 0; box-sizing: border-box; }
+    body {
+      width: 340px;
+      font-family: 'DM Sans', -apple-system, sans-serif;
+      background: #0f172a;
+      color: #e2e8f0;
+      overflow: hidden;
+    }
+    .header {
+      padding: 18px 20px 14px;
+      background: linear-gradient(135deg, #0f172a, #1e293b);
+      border-bottom: 1px solid rgba(34,197,94,.15);
+    }
+    .logo-row { display: flex; align-items: center; gap: 10px; margin-bottom: 4px; }
+    .logo-icon {
+      width: 32px; height: 32px; border-radius: 8px; flex-shrink: 0;
+      background: linear-gradient(135deg, #22c55e, #10b981);
+      display: flex; align-items: center; justify-content: center; font-size: 16px;
+      box-shadow: 0 2px 12px rgba(34,197,94,.3);
+    }
+    .logo-text { font-size: 15px; font-weight: 700; letter-spacing: -.3px; color: #f1f5f9; }
+    .subtitle { font-size: 11px; color: #94a3b8; margin-left: 42px; }
+
+    .content { padding: 14px 18px 18px; display: flex; flex-direction: column; gap: 14px; }
+
+    .section-label {
+      font-size: 10.5px; font-weight: 600; color: #64748b;
+      text-transform: uppercase; letter-spacing: .9px; margin-bottom: 6px;
+    }
+
+    /* Buttons */
+    .btn-group { display: flex; gap: 8px; }
+    .btn {
+      flex: 1; padding: 11px 16px; border: none; border-radius: 8px;
+      font-family: 'DM Sans', sans-serif; font-size: 13px; font-weight: 600;
+      cursor: pointer; transition: all .2s;
+      display: flex; align-items: center; justify-content: center; gap: 6px;
+    }
+    .btn-scan {
+      background: linear-gradient(135deg, #22c55e, #16a34a);
+      color: #fff; box-shadow: 0 2px 12px rgba(34,197,94,.3);
+    }
+    .btn-scan:hover { transform: translateY(-1px); box-shadow: 0 4px 16px rgba(34,197,94,.4); }
+    .btn-scan:active { transform: translateY(0); }
+    .btn-scan:disabled { opacity: .5; cursor: not-allowed; transform: none; }
+    .btn-clear {
+      background: #1e293b; color: #94a3b8;
+      border: 1px solid #334155; flex: 0; padding: 11px 14px;
+    }
+    .btn-clear:hover { background: #334155; color: #e2e8f0; }
+
+    /* GitHub section */
+    .github-section { border-top: 1px solid #1e293b; padding-top: 12px; }
+    .section-toggle {
+      display: flex; align-items: center; justify-content: space-between;
+      cursor: pointer; user-select: none;
+    }
+    .section-toggle-arrow { font-size: 10px; color: #475569; transition: transform .2s; }
+    .github-section.collapsed .section-toggle-arrow { transform: rotate(-90deg); }
+    .github-section.collapsed .github-fields,
+    .github-section.collapsed .model-status { display: none; }
+    .github-fields { margin-top: 8px; display: flex; flex-direction: column; gap: 7px; }
+    .gh-row { display: flex; gap: 7px; }
+    .gh-row .input-wrapper { flex: 1; }
+
+    /* Inputs */
+    .input-wrapper { position: relative; }
+    .field-input {
+      width: 100%; padding: 9px 34px 9px 12px;
+      background: #1e293b; border: 1px solid #334155; border-radius: 7px;
+      color: #e2e8f0; font-family: 'DM Sans', sans-serif; font-size: 12px; outline: none;
+      transition: border-color .2s, box-shadow .2s;
+    }
+    .field-input.mono { font-family: "SF Mono","Fira Code","Consolas",monospace; font-size: 11px; }
+    .field-input::placeholder { color: #475569; }
+    .field-input:focus { border-color: #22c55e; box-shadow: 0 0 0 3px rgba(34,197,94,.1); }
+    .field-input.saved { border-color: rgba(34,197,94,.5); }
+    .status-dot {
+      position: absolute; right: 12px; top: 50%; transform: translateY(-50%);
+      width: 7px; height: 7px; border-radius: 50%; background: #334155; transition: background .3s;
+    }
+    .status-dot.active { background: #22c55e; box-shadow: 0 0 6px rgba(34,197,94,.5); }
+
+    /* Model status */
+    .model-status {
+      display: flex; align-items: center; gap: 8px; margin-top: 8px;
+      padding: 8px 10px; background: rgba(34,197,94,.05);
+      border: 1px solid rgba(34,197,94,.12); border-radius: 7px;
+    }
+    .model-status-icon { font-size: 14px; flex-shrink: 0; }
+    .model-status-text { flex: 1; font-size: 11px; color: #64748b; line-height: 1.4; }
+    .model-status-text strong { color: #94a3b8; font-weight: 600; }
+    .btn-sync {
+      background: none; border: 1px solid #334155; border-radius: 5px;
+      color: #64748b; font-size: 10px; font-family: 'DM Sans', sans-serif;
+      padding: 4px 8px; cursor: pointer; transition: all .2s; white-space: nowrap; flex-shrink: 0;
+    }
+    .btn-sync:hover { border-color: #22c55e; color: #22c55e; }
+
+    /* Info box */
+    .info {
+      padding: 10px 12px; background: rgba(34,197,94,.05);
+      border: 1px solid rgba(34,197,94,.1); border-radius: 7px;
+    }
+    .info-title { font-size: 10.5px; font-weight: 600; color: #22c55e; margin-bottom: 4px; }
+    .info-text { font-size: 11px; color: #64748b; line-height: 1.5; }
+    .legend { display: flex; gap: 14px; margin-top: 8px; }
+    .legend-item { display: flex; align-items: center; gap: 5px; font-size: 10px; color: #64748b; }
+    .legend-swatch { width: 11px; height: 11px; border-radius: 3px; border-left: 3px solid; }
+    .legend-swatch.high { border-color: #22c55e; background: rgba(34,197,94,.15); }
+    .legend-swatch.medium { border-color: #eab308; background: rgba(234,179,8,.15); }
+
+    @keyframes spin { to { transform: rotate(360deg); } }
+    .spinner {
+      display: inline-block; width: 11px; height: 11px;
+      border: 2px solid rgba(255,255,255,.3); border-top-color: #fff;
+      border-radius: 50%; animation: spin .7s linear infinite; vertical-align: middle;
+    }
+  </style>
+</head>
+<body>
+  <div class="header">
+    <div class="logo-row">
+      <div class="logo-icon">🔍</div>
+      <div class="logo-text">AI Content Detector</div>
+    </div>
+    <div class="subtitle">Local heuristics · no API · learns from feedback</div>
+  </div>
+
+  <div class="content">
+
+    <!-- Scan / Clear -->
+    <div class="btn-group">
+      <button class="btn btn-scan" id="scanBtn"><span>⚡</span> Scan Page</button>
+      <button class="btn btn-clear" id="clearBtn" title="Clear highlights">✕</button>
+    </div>
+
+    <!-- GitHub Config (collapsible) -->
+    <div class="github-section collapsed" id="githubSection">
+      <div class="section-toggle" id="githubToggle">
+        <span class="section-label" style="margin-bottom:0">GitHub Feedback Log</span>
+        <span class="section-toggle-arrow">▼</span>
+      </div>
+
+      <div class="github-fields">
+        <div class="input-wrapper">
+          <input type="password" class="field-input mono" id="githubToken"
+            placeholder="ghp_…  (GitHub personal access token)"
+            spellcheck="false" autocomplete="off"/>
+          <div class="status-dot" id="ghStatusDot"></div>
+        </div>
+        <div class="gh-row">
+          <div class="input-wrapper">
+            <input type="text" class="field-input mono" id="githubRepo"
+              placeholder="owner/repo" spellcheck="false"/>
+          </div>
+          <div class="input-wrapper">
+            <input type="text" class="field-input mono" id="githubFilePath"
+              placeholder="ai-confidence-log.json" spellcheck="false"/>
+          </div>
+        </div>
+      </div>
+
+      <div class="model-status" id="modelStatus" style="display:none">
+        <div class="model-status-icon">🧠</div>
+        <div class="model-status-text" id="modelStatusText">No calibration data yet.</div>
+        <button class="btn-sync" id="syncBtn">↻ Sync</button>
+      </div>
+    </div>
+
+    <!-- Info -->
+    <div class="info">
+      <div class="info-title">How it works</div>
+      <div class="info-text">
+        Scores text blocks using 11 local signals (transition phrases, sentence variance,
+        hedging language, etc.). Thumb votes are logged to GitHub; every 5 votes
+        recalibrate the signal weights automatically.
+      </div>
+      <div class="legend">
+        <div class="legend-item"><div class="legend-swatch high"></div>AI Generated</div>
+        <div class="legend-item"><div class="legend-swatch medium"></div>Likely AI</div>
+      </div>
+    </div>
+
+  </div>
+  <script src="popup.js"></script>
+</body>
+</html>

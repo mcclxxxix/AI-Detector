@@ -1,0 +1,195 @@
+/* AI Content Detector - Highlight & Badge Styles v1.1 */
+
+/* ── Highlighted block ─────────────────────────────────────── */
+
+.ai-detector-highlight {
+  background: linear-gradient(
+    135deg,
+    rgba(34, 197, 94, 0.18) 0%,
+    rgba(16, 185, 129, 0.14) 100%
+  ) !important;
+  border-left: 3px solid #22c55e !important;
+  border-radius: 4px !important;
+  padding: 4px 8px !important;
+  position: relative !important;
+  transition: background 0.3s ease, box-shadow 0.3s ease !important;
+}
+
+.ai-detector-highlight:hover {
+  background: linear-gradient(
+    135deg,
+    rgba(34, 197, 94, 0.28) 0%,
+    rgba(16, 185, 129, 0.22) 100%
+  ) !important;
+  box-shadow: 0 0 0 1px rgba(34, 197, 94, 0.3) !important;
+}
+
+/* ── Confidence colour variants ────────────────────────────── */
+
+.ai-detector-confidence-high {
+  border-left-color: #16a34a !important;
+}
+
+.ai-detector-confidence-medium {
+  border-left-color: #eab308 !important;
+}
+
+.ai-detector-confidence-medium .ai-detector-badge {
+  background: #eab308 !important;
+}
+
+/* ── Badge (interactive — note: NO pointer-events: none) ───── */
+
+.ai-detector-badge {
+  display: inline-flex !important;
+  align-items: center !important;
+  gap: 5px !important;
+  position: absolute !important;
+  top: -12px !important;
+  right: 8px !important;
+  background: #22c55e !important;
+  color: #fff !important;
+  font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif !important;
+  font-size: 9px !important;
+  font-weight: 700 !important;
+  padding: 3px 8px !important;
+  border-radius: 8px !important;
+  letter-spacing: 0.4px !important;
+  text-transform: uppercase !important;
+  line-height: 14px !important;
+  z-index: 999999 !important;
+  box-shadow: 0 1px 6px rgba(0, 0, 0, 0.2) !important;
+  white-space: nowrap !important;
+  user-select: none !important;
+  transition: background 0.25s ease !important;
+}
+
+/* Voted state — dims the badge slightly */
+.ai-detector-badge.ai-detector-badge-voted {
+  background: #475569 !important;
+  opacity: 0.9 !important;
+}
+
+.ai-detector-badge-label {
+  pointer-events: none !important;
+  letter-spacing: 0.5px !important;
+}
+
+.ai-detector-badge-divider {
+  opacity: 0.5 !important;
+  font-weight: 400 !important;
+  pointer-events: none !important;
+}
+
+/* ── Thumb buttons ──────────────────────────────────────────── */
+
+.ai-detector-thumb {
+  all: unset !important;
+  cursor: pointer !important;
+  font-size: 10px !important;
+  line-height: 1 !important;
+  padding: 1px 2px !important;
+  border-radius: 3px !important;
+  transition: transform 0.15s ease, opacity 0.15s ease !important;
+  display: inline-flex !important;
+  align-items: center !important;
+  justify-content: center !important;
+}
+
+.ai-detector-thumb:hover:not(:disabled) {
+  transform: scale(1.25) !important;
+}
+
+.ai-detector-thumb:active:not(:disabled) {
+  transform: scale(0.95) !important;
+}
+
+.ai-detector-thumb:disabled {
+  opacity: 0.45 !important;
+  cursor: default !important;
+}
+
+/* ── Scanning sweep animation ───────────────────────────────── */
+
+.ai-detector-scanning {
+  position: relative !important;
+  overflow: hidden !important;
+}
+
+.ai-detector-scanning::after {
+  content: "" !important;
+  position: absolute !important;
+  top: 0 !important;
+  left: -100% !important;
+  width: 100% !important;
+  height: 100% !important;
+  background: linear-gradient(
+    90deg,
+    transparent,
+    rgba(34, 197, 94, 0.08),
+    transparent
+  ) !important;
+  animation: ai-scan-sweep 1.5s ease-in-out infinite !important;
+  pointer-events: none !important;
+  z-index: 1 !important;
+}
+
+@keyframes ai-scan-sweep {
+  0%   { left: -100%; }
+  100% { left: 100%; }
+}
+
+/* ── Toast notification ─────────────────────────────────────── */
+
+.ai-detector-toast {
+  position: fixed !important;
+  bottom: 24px !important;
+  right: 24px !important;
+  background: #1e293b !important;
+  color: #f1f5f9 !important;
+  font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif !important;
+  font-size: 13px !important;
+  padding: 12px 20px !important;
+  border-radius: 10px !important;
+  box-shadow: 0 8px 32px rgba(0, 0, 0, 0.25) !important;
+  z-index: 2147483647 !important;
+  display: flex !important;
+  align-items: center !important;
+  gap: 10px !important;
+  transition: opacity 0.4s ease, transform 0.4s ease !important;
+  opacity: 0 !important;
+  transform: translateY(12px) !important;
+  border: 1px solid rgba(34, 197, 94, 0.3) !important;
+  max-width: 360px !important;
+}
+
+.ai-detector-toast.visible {
+  opacity: 1 !important;
+  transform: translateY(0) !important;
+}
+
+.ai-detector-toast-icon {
+  width: 20px !important;
+  height: 20px !important;
+  border-radius: 50% !important;
+  background: #22c55e !important;
+  display: flex !important;
+  align-items: center !important;
+  justify-content: center !important;
+  flex-shrink: 0 !important;
+  font-size: 11px !important;
+}
+
+.ai-detector-toast-spinner {
+  width: 18px !important;
+  height: 18px !important;
+  border: 2px solid rgba(34, 197, 94, 0.3) !important;
+  border-top-color: #22c55e !important;
+  border-radius: 50% !important;
+  animation: ai-spin 0.7s linear infinite !important;
+  flex-shrink: 0 !important;
+}
+
+@keyframes ai-spin {
+  to { transform: rotate(360deg); }
+}
